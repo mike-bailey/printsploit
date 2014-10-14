@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<chaiconfig>
+    <workdir dir="webServer"/>
+    <wwwroot dir="home"/>
+    <shlibdir dir="lib"/>
+    <extclasspath dir="permanent"/>
+
+    <basicgatekeeper>
+        <realm class="hp.laserjet.security.MasterRealm"/>
+    </basicgatekeeper>
+
+    <properties>
+        <property name="com.hp.chai.soe.extrapath" value="/hp/device"/>
+        <property name="com.hp.chai.smtphelper.smtpserver" value=""/>
+        <property name="com.hp.chai.smtphelper.smtphelohost" value=""/>
+    </properties>
+
+    <threadpool threads="4" qsize="5" connection_timeout="3" timeout_interval="30"/>
+
+    <listenerlist>
+        <listener name="http" port="80" secure="false" class="com.hp.chai.http.HTTPListener">
+            <homepageobject object="this.LCDispatcher"/>
+            <encoding value="UTF-8"/>
+        </listener>
+        <listener name="jorb" port="7627" secure="false" class="com.hp.chai.http.HTTPListener">
+            <homepageobject object="this.LCDispatcher"/>
+        </listener>
+        <listener name="email" port="110" secure="false" class="com.hp.chai.pop3.POP3Listener">
+            <pop3server server=""/>
+            <username user=""/>
+            <password pwd=""/>
+            <pollfrequency frequency="120"/>
+            <email enable="false"/>
+            <sockettimeout timeout="1"/>
+        </listener>
+        <listener name="http_parallel" host="127.0.0.1" port="5225" secure="false" class="hp.DCListener">
+            <homepageobject object="this.LCDispatcher"/>
+            <encoding value="UTF-8"/>
+        </listener>
+        <listener name="http_usb" host="127.0.0.1" port="5227" secure="false" class="hp.DCListener">
+            <homepageobject object="this.LCDispatcher"/>
+            <encoding value="UTF-8"/>
+        </listener>
+    </listenerlist>
+
+    <errorhandler class="hp.laserjet.deviceErrorHandler.DeviceErrorHandler"/>
+
+    <persisthandler class="hp.SOEPersistHandler"/>
+
+    <enginelist>
+        <!-- JORB Engine -->
+        <engine class="com.hp.chai.soe.engine.jorb.JORBEngine" urn="urn:hp:JORBEngine" connection_timeout="240">
+            <transports>
+                <transport listenerName="jorb" class="com.hp.embedded.orblite.soap.SoapTransport" />
+            </transports>
+        </engine>
+
+        <!-- ChaiServer Engine -->
+        <engine class="com.hp.chai.soe.engine.chai.CSEngine" urn="urn:hp:ChaiServerEngine" />
+
+        <!-- WebServer Engine  -->
+        <engine class="com.hp.chai.soe.engine.webserver.WebServerEngine" urn="urn:hp:WebServerEngine">
+            <mimetype value="text/html">
+                <ext>html</ext>
+            </mimetype>
+            <mimetype value="text/plain">
+                <ext>txt</ext>
+                <ext>java</ext>
+            </mimetype>
+            <mimetype value="image/gif">
+                <ext>gif</ext>
+            </mimetype>
+            <mimetype value="image/jpeg">
+                <ext>jpg</ext>
+                <ext>jpeg</ext>
+            </mimetype>
+            <mimetype value="image/png">
+                <ext>png</ext>
+            </mimetype>
+            <mimetype value="application/zip">
+                <ext>zip</ext>
+            </mimetype>
+            <mimetype value="text/css">
+                <ext>css</ext>
+            </mimetype>
+            <mimetype value="application/x-javascript">
+                <ext>js</ext>
+            </mimetype>
+            <mimetype value="application/java-archive">
+                <ext>jar</ext>
+            </mimetype>
+        </engine>
+    </enginelist>
+
+    <packagelist>
+        <package xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd">
+            <name>QueryEndpoints Package</name>
+            <URN>urn:hp:QueryEndpoints</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>Returns Endpoint to IJobControl Interface</package-description>
+            <version>1.0</version>
+            <engineurn>urn:hp:JORBEngine</engineurn>
+            <service SkeletonClass="com.hp.psi.QueryEndpointsSkeleton"  ServantClass="hp.psi.QueryEndpoints" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>HP Web Content Server</name>
+            <URN>urn:hp:dispatcher</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>Creates the HP web content.</package-description>
+            <version>2.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="hp.content.services.DispatcherStub" linkid="this.LCDispatcher" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>Service Loader</name>
+            <URN>urn:hp:loader</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>Dynamically load services on this device.</package-description>
+            <version>1.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="hp.content.services.Loader" linkid="this.loader" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>Print Service Project</name>
+            <URN>urn:hp:printservice</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>Allows direct printing of files</package-description>
+            <version>1.0</version>
+            <dependencies>
+                <dependency>urn:hp:dispatcher</dependency>
+            </dependencies>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="hp.printservice.PrintServiceStub" linkid="this.printservice" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>HP Device Information</name>
+            <URN>urn:hp:deviceinfo</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>Serves up device configuration.</package-description>
+            <version>1.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="hp.deviceinfo.Device_InfoStub" linkid="hp.deviceInfo" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>HP Email Pages</name>
+            <URN>urn:hp:emailpages</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>Emails configuration page information.</package-description>
+            <version>1.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="hp.content.services.EmailPages" linkid="this.configpage" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>Tab Info</name>
+            <URN>urn:hp:tabinfo</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>Information about dynamic category tabs.</package-description>
+            <version>1.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="hp.content.services.TabInfo" linkid="tab_info.hpx" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>HP GIF Server</name>
+            <URN>urn:hp:gifserver</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <package-description>GIF Server information.</package-description>
+            <version>1.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="hp.content.services.GIFServerStub" linkid="this.GIFServer" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>EWSConfig Application</name>
+            <package-description>Accesses and updates Embedded Web Server settings.</package-description>
+            <name lang="cs">Aplikace pro konfiguraci</name>
+            <package-description lang="cs">Otevře a aktualizuje nastavení implementovaného webového serveru.</package-description>
+            <name lang="da">Konfigurationsprogram til integreret Webserver</name>
+            <package-description lang="da">Giver adgang til og opdaterer indstillinger for integreret Webserver.</package-description>
+            <name lang="de">EWS-Konfigurationsanwendung</name>
+            <package-description lang="de">Öffnet und aktualisert Einstellungen des eingebetteten Webservers.</package-description>
+            <name lang="es">Aplicación de configuración del servidor web</name>
+            <package-description lang="es">Permite acceder a la configuración del servidor web incrustado y actualizarla.</package-description>
+            <name lang="fi">EWS Config -sovellus</name>
+            <package-description lang="fi">Avaa ja päivittää sulautetun Web-palvelimen asetukset.</package-description>
+            <name lang="fr">Application de configuration de serveur Web intégré</name>
+            <package-description lang="fr">Permet d'accéder et de mettre à jour les paramètres du serveur Web intégré.</package-description>
+            <name lang="hu">EWS Config alkalmazás</name>
+            <package-description lang="hu">A beágyazott web szerver beállításaihoz biztosít hozzáférést és frissítési lehetőséget.</package-description>
+            <name lang="it">Applicazione config EWS</name>
+            <package-description lang="it">Accede e aggiorna le impostazioni del server Web incorporato.</package-description>
+            <name lang="ja">EWS 構成アプリケーション</name>
+            <package-description lang="ja">Embedded Web Server の設定にアクセスして、更新します。</package-description>
+            <name lang="ko">EWS 구성 응용 프로그램 </name>
+            <package-description lang="ko">내장 웹 서버 설정에 액세스하여 업데이트합니다.</package-description>
+            <name lang="nl">Configuratietoepassing voor ingesloten webserver</name>
+            <package-description lang="nl">Geeft toegang tot de instellingen van de ingesloten webserver en werkt deze bij.</package-description>
+            <name lang="no">EWS-konfigureringsprogram</name>
+            <package-description lang="no">Åpner og oppdaterer innstillingene til den innebygde Web-serveren.</package-description>
+            <name lang="pl">Aplikacja konfiguracji wbudowanego serwera sieciowego</name>
+            <package-description lang="pl">Umożliwia dostęp i aktualizację ustawień wbudowanego serwera sieciowego (EWS).</package-description>
+            <name lang="pt">Aplicativo de configuração do Servidor incorporado da Web</name>
+            <package-description lang="pt">Acessa e atualiza as configurações do Servidor incorporado da Web.</package-description>
+            <name lang="ru">Приложение конфигурации</name>
+            <package-description lang="ru">Осуществляет доступ к параметрам встроенного Web-сервера и их изменение.</package-description>
+            <name lang="sv">EWS-konfigurationsprogram</name>
+            <package-description lang="sv">Åtkomst och uppdatering av inställningar för Embedded Web Server.</package-description>
+            <name lang="tr">KWS Yapılandırma Uygulaması</name>
+            <package-description lang="tr">Katıştırılmış Web Sunucusu ayarlarına erişilmesini ve güncelleştirilmesini sağlar.</package-description>
+            <name lang="zh-cn">EWS 配置应用程序</name>
+            <package-description lang="zh-cn">访问和更新 Embedded Web Server 的设置。</package-description>
+            <name lang="zh-tw">內嵌式 Web 伺服器設定應用程式</name>
+            <package-description lang="zh-tw">內嵌式 Web 伺服器設定值的存取和更新。</package-description>
+            <URN>urn:hp:config</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <version>4.0.0.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="com.hp.ips.cfg.EWSConfigStub" linkid="this.x-com-hp-ips-cfg-cc" />
+        </package>
+
+        <package xsi:schemaLocation="http://schemas.hp.com/imaging/cnc/base/2002/05/service.xsd" xmlns:csi="http://schemas.hp.com/imaging/csn/base/2002/05/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <name>Device Application Manager</name>
+            <package-description>Provides management information about device applications running in the printer.</package-description>
+            <package-description lang="cs">Poskytuje informace pro správu aplikací zařízení, která jsou spuštěna v tiskárně.</package-description>
+            <package-description lang="da">Giver styringsoplysninger om enhedsprogrammer, der kører i printeren.</package-description>
+            <package-description lang="de">Liefert Verwaltungsinformationen zu auf dem Drucker ausgeführten Geräteanwendungen.</package-description>
+            <package-description lang="es">Proporciona información que permite gestionar las aplicaciones de dispositivos que se están ejecutando en la impresora.</package-description>
+            <package-description lang="fi">Antaa hallintatietoja kirjoittimessa suoritettavista laitesovelluksista.</package-description>
+            <package-description lang="fr">Fournit des informations de gestion sur les applications de périphérique exécutées sur l'imprimante.</package-description>
+            <package-description lang="hu">Információt szolgáltat a nyomtatón futó eszköz alkalmazásokról.</package-description>
+            <package-description lang="it">Fornisce informazioni sulla gestione delle applicazioni dei dispositivi in esecuzione con la stampante.</package-description>
+            <package-description lang="ja">プリンタで実行するデバイス アプリケーションに関する管理情報を提供します。</package-description>
+            <package-description lang="ko">프린터에서 실행되는 장치 응용 프로그램의 관리 정보를 제공합니다.</package-description>
+            <package-description lang="nl">Geeft managementinformatie over toepassingen die op de printer worden uitgevoerd.</package-description>
+            <package-description lang="no">Gir behandlingsinformasjon om enhetsprogrammer som kjører på skriveren.</package-description>
+            <package-description lang="pl">Dostarcza informacji dotyczących zarządzania związanych z aplikacjami urządzeń uruchomionymi na drukarce.</package-description>
+            <package-description lang="pt">Oferece informações de gerenciamento sobre os aplicativos do dispositivo executados na impressora.</package-description>
+            <package-description lang="ru">Предоставляет информацию об управлении приложениями устройства, работающими с принтером.</package-description>
+            <package-description lang="sv">Visar administrationsinformation om enhetsprogram som körs i skrivaren.</package-description>
+            <package-description lang="tr">Yazıcıda çalışan aygıt uygulamaları hakkında yönetim bilgisi sağlar.</package-description>
+            <package-description lang="zh-cn">提供有关在打印机中运行的设备应用程序的管理信息。</package-description>
+            <package-description lang="zh-tw">提供有關在印表機中執行的裝置應用程式的管理資訊。</package-description>
+            <URN>urn:hp:servicemanagement</URN>
+            <company-name>Hewlett-Packard</company-name>
+            <company-support-url>http://www.hp.com</company-support-url>
+            <version>4.0.0.0</version>
+            <engineurn>urn:hp:ChaiServerEngine</engineurn>
+            <service class="com.hp.ips.mgt.MCStub" linkid="this.x-com-hp-ips-mgt-mc" />
+        </package>
+    </packagelist>
+</chaiconfig>
